@@ -1,0 +1,13 @@
+/*
+ * regression.c
+ *
+ *  Created on: 20-May-2011
+ *      Author: Mainak
+ */
+
+
+double regA(Node* a, Node *b, Node *c)
+{}
+
+double regB(Node* a, Node *b, Node *c)
+{}

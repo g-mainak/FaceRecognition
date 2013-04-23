@@ -1,0 +1,34 @@
+/*
+ * main.cpp
+ *
+ *  Created on: 20-May-2011
+ *      Author: Mainak
+ */
+
+#include "EBGM.h"
+#include "EBGMperipherals.h"
+#include "EBGMCalc.h"
+#include <math.h>
+int main(int argc, char *argv[])
+{
+	/*
+	 * Read the IMage.
+	 * Find the points.
+	 * Find the Nose Bridge, Nose Tip and Centre of lip.
+	 * Draw regression line.
+	 * Rotate whole picture to make regression line 90 degree.
+	 * cut away half picture
+	 * duplicate half picture
+	 * crop
+	 */
+	BunchGraph *bg = readBunchGraph((char*)"bunchGraph.bg");
+	Mask *mask = readMask((char*)"gbm.wavelet");
+	Image image = readImage(argv[1]);
+	FaceGraph face = putGraph(bg, mask, image);
+	double a = regA(face.Nodes[2], face.Nodes[3], face.Nodes[7]);
+	double b = regB(face.Nodes[2], face.Nodes[3], face.Nodes[7]);
+	double angle = atan(a);
+	image.rotate(angle);
+	Image croppedImage = crop(image);
+	_itow(2, (wchar_t*)bg, 3);
+}

@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename resource &apos;Reconstruction/regression.c&apos; to &apos;regression.cpp&apos;" description="Rename resource &apos;regression.c&apos;" flags="7" id="org.eclipse.ltk.core.refactoring.rename.resource" input="regression.c" name="regression.cpp" stamp="1305884246904" updateReferences="true"/>
+</session>

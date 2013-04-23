@@ -1,0 +1,27 @@
+
+**** Build of configuration Debug for project Test ****
+
+**** Internal Builder is used for build               ****
+g++ -IC:\OpenCV2.0\include\opencv -O0 -g3 -Wall -c -fmessage-length=0 -ophp.o ..\php.cpp
+..\php.cpp: In function 'int main()':
+..\php.cpp:13:221: warning: deprecated conversion from string constant to 'char*'
+..\php.cpp:13:221: warning: deprecated conversion from string constant to 'char*'
+..\php.cpp:13:221: warning: deprecated conversion from string constant to 'char*'
+..\php.cpp:13:221: warning: deprecated conversion from string constant to 'char*'
+..\php.cpp:13:221: warning: deprecated conversion from string constant to 'char*'
+..\php.cpp:13:221: warning: deprecated conversion from string constant to 'char*'
+..\php.cpp:13:221: warning: deprecated conversion from string constant to 'char*'
+..\php.cpp:13:221: warning: deprecated conversion from string constant to 'char*'
+..\php.cpp:13:221: warning: deprecated conversion from string constant to 'char*'
+..\php.cpp:13:221: warning: deprecated conversion from string constant to 'char*'
+..\php.cpp:13:221: warning: deprecated conversion from string constant to 'char*'
+..\php.cpp:13:221: warning: deprecated conversion from string constant to 'char*'
+..\php.cpp:13:221: warning: deprecated conversion from string constant to 'char*'
+..\php.cpp:13:221: warning: deprecated conversion from string constant to 'char*'
+..\php.cpp:13:221: warning: deprecated conversion from string constant to 'char*'
+..\php.cpp:13:221: warning: deprecated conversion from string constant to 'char*'
+..\php.cpp:13:221: warning: deprecated conversion from string constant to 'char*'
+..\php.cpp:13:221: warning: deprecated conversion from string constant to 'char*'
+g++ -LC:\OpenCV2.0\lib -oTest.exe php.o -lcv200 -lcxcore200 -lcvaux200 -lhighgui200
+Build complete for project Test
+Time consumed: 1139  ms.  

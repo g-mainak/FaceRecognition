@@ -1,0 +1,13 @@
+/*
+ * regression.h
+ *
+ *  Created on: 20-May-2011
+ *      Author: Mainak
+ */
+
+#ifndef REGRESSION_H_
+#define REGRESSION_H_
+
+double regA(Node *a, Node *b, Node *b);
+double regB(Node *a, Node *b, Node *c);
+#endif /* REGRESSION_H_ */

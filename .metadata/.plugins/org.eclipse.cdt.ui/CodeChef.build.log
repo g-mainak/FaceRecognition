@@ -1,0 +1,10 @@
+
+**** Build of configuration Debug for project CodeChef ****
+
+**** Internal Builder is used for build               ****
+g++ -O0 -g3 -Wall -c -fmessage-length=0 -olife.o ..\life.cpp
+..\life.cpp: In function 'int main()':
+..\life.cpp:6:6: warning: unused variable 'i'
+g++ -oCodeChef.exe life.o
+Build complete for project CodeChef
+Time consumed: 919  ms.  

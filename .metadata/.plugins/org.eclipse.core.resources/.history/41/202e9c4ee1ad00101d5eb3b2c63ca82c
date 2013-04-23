@@ -1,0 +1,15 @@
+#include <iostream>
+using namespace std;
+
+int main()
+{
+	int i=-1;
+	unsigned k=-1;
+	If(i>>1==u>>1)
+		cout<<true;
+	return 0;
+}
+
+
+
+

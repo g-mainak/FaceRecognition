@@ -1,0 +1,301 @@
+#include<iostream>
+#include<fstream>
+#include<vector>
+#include<cmath>
+#include<algorithm>
+
+using namespace std;
+
+typedef struct
+{
+	double centroid[6], prevCentroid[6];
+    int n[832];
+    unsigned int count;
+} cluster;
+
+int find_cluster();
+unsigned int numPictures=4;
+vector <cluster> CL;
+unsigned int nI = 208*4;
+unsigned int nA = 1;
+double threshold;
+double **img;
+
+double euclid_dist(double *d1, double *d2)
+{
+	double dist = 0.0;
+	for(unsigned int i=0; i<nA; i++)
+	{
+		dist += (d1[i]-d2[i])*(d1[i]-d2[i]);
+	}
+	return sqrt(dist);
+}
+
+double man_dist(double *d1, double *d2)
+{
+	double dist = 0.0;
+	for(unsigned int i=0; i<nA; i++)
+	{
+		dist += abs(d1[i]-d2[i]);
+	}
+	return (dist / nA);
+}
+
+void combine( int first, int second, vector<vector<double> > *distMat, vector <cluster> *clusters)
+{
+	int m = clusters->at(first).count, n = clusters->at(second).count;
+	for(unsigned int i=0; i<nA; i++)
+	{
+		clusters->at(first).centroid[i] = (m*clusters->at(first).centroid[i] + n*clusters->at(second).centroid[i])/(m+n);
+	}
+	for(unsigned int i=0; i<clusters->at(second).count; i++)
+		clusters->at(first).n[i+ clusters->at(first).count] = clusters->at(second).n[i];
+    clusters->at(first).count += clusters->at(second).count;
+	vector<cluster>::iterator i = clusters->begin();
+	i += second;
+	clusters->erase(i);
+}
+
+void printCluster(vector<cluster> clusters)
+{
+	ofstream out("clusters.txt");
+	for(unsigned int j = 0 ; j < CL.size() ; j++ )
+		{
+			out<<j<<" "<<CL[j].count<<endl;
+			for(unsigned int k=0 ; k<nA ; k++ )
+				out<<CL[j].centroid[k]<<" ";
+			out<<endl;
+			for(unsigned int  k =0 ; k < CL[j].count ; k++ )
+				out<<CL[j].n[k]<<" ";
+			out<<endl;
+		}
+}
+
+void HAC( vector<cluster> *clusters)
+{
+	int first, second, row, col;
+	double leastDist=1e300, f;
+	for(vector<cluster>::iterator i = clusters->begin(); i!= clusters->end(); ++i)
+	{
+		for(vector<cluster>::iterator j = clusters->begin(); j!=clusters->end(); ++j)
+		{
+			double temp = man_dist(i->centroid, j->centroid);
+			if (temp!=0)
+				leastDist = (temp<leastDist)?temp:leastDist;
+		}
+	}
+	//cout<<"LeastDist: "<<leastDist<<endl;
+	f=leastDist;
+	do
+	{
+		leastDist=1e300;
+		vector<vector<double> > distMat (clusters->size(), vector<double> (clusters->size()));
+		for(vector<double>::iterator i = distMat[0].begin(); i!= distMat[0].end(); i++)
+		{
+			row = i - distMat[0].begin();
+			for(vector<double>::iterator j = distMat.at(row).begin(); row > (j - distMat.at(row).begin()) ; j++)
+			{
+				col = j - distMat.at(row).begin();
+				distMat.at(row).at(col) = man_dist( clusters->at(row).centroid , clusters->at(col).centroid);
+				if(leastDist>*j)
+				{
+					leastDist=*j;
+					first= row;
+					second= col;
+				}
+			}
+		}
+		combine(second, first, &distMat, clusters);
+	} while( clusters->size()>100);
+	printCluster(*clusters);
+}
+
+void kMeans()
+{
+	// Making Clusters
+	for(int i=0 ; i < nI ; i++ )
+	{
+		 if( i%4 == 0) // formation of centroid by 1st image of each person
+		 {
+			 cluster c1;
+			 c1.count = 1;
+			 c1.n[0] = i;
+			 for(int j=0 ; j<nA ; j++ )
+				  c1.centroid[ j ] = img[ c1.n[0] ][j];
+			 CL.push_back( c1 );
+		 }
+	}
+	double dist[ CL.size() ];
+	int pos;
+	for(int i=0 ; i<nI ; i++ )
+	{
+		if( (i % 4 == 0) || (i%4==2) || (i%4==3) ) // escaping the 0th and 3rd image of every person
+			continue;
+		for(int j=0 ; j < CL.size() ; j++ )
+			dist[j] = 0;
+		for(int j =0 ; j < CL.size() ; j++ )
+			dist[j] = man_dist( CL[j].centroid , img[i] );
+		pos = min_element( dist , dist + CL.size() ) - dist;
+		CL[ pos ].n[   CL[ pos ].count   ] = i;
+		CL[ pos ].count++;
+	}
+	for(int i=0 ; i<CL.size() ; i++ )
+	{
+		 for(int j=0 ; j<nA ; j++ )
+		 {
+			  for(int k=1 ; k<CL[i].count ; k++ )
+				   CL[i].centroid[j] += img[ CL[i].n[k] ][j] ;
+			  CL[i].centroid[j] /= CL[i].count;
+		 }
+	}
+	int counter=0;
+	while(true)
+	{
+		cout<<counter;
+		counter++;
+		for(int i=0; i<CL.size(); i++)
+		{
+			for(int j=0; j<nA; j++)
+				CL[i].prevCentroid[j] = CL[i].centroid[j];
+			CL[i].count=0;
+		}
+
+		for(int i=0 ; i<nI ; i++ )
+		{
+			if( (i%4==2) || (i % 4 == 3 ) ) // escaping the 3rd image of every person
+				continue;
+			for(int j =0 ; j < CL.size() ; j++ )
+				dist[j] = man_dist( CL[j].centroid , img[i] );
+			pos = min_element( dist , dist + CL.size() ) - dist;
+			CL[ pos ].n[   CL[ pos ].count   ] = i;
+			CL[ pos ].count++;
+		}
+		for(int i=0 ; i<CL.size() ; i++ )
+		{
+			 for(int j=0 ; j<nA ; j++ )
+			 {
+				 CL[i].centroid[j]=0;
+
+				 for(int k=0 ; k<CL[i].count ; k++ )
+				 {
+					 CL[i].centroid[j] += img[ CL[i].n[k] ][j] ;
+				 }
+
+				 //cout<<"epoch "<<counter<<" for cluster "<<i<<"centroid/count "<<CL[i].centroid[j]<<" / "<< CL[i].count<<endl;
+
+				 CL[i].centroid[j] /= CL[i].count;
+			 }
+		}
+		int flag = 0;
+		for(int i=0 ; i<CL.size() ; i++ )
+		{
+			double dist=0.0;
+			for(int j=0 ; j < nA ; j++ )
+			 {
+				 dist+=(CL[i].centroid[j] - CL[i].prevCentroid[j])*(CL[i].centroid[j] - CL[i].prevCentroid[j]);
+			 }
+			 if(dist>0.001)
+			 {
+				 flag=1;
+				 break;
+			 }
+		}
+		if( flag == 0)
+		   break;
+	}
+	for(vector<cluster>::iterator i = CL.begin(); i!=CL.end(); ++i)
+		if(i->count==0)
+		{
+			CL.erase(i--);
+		}
+	ofstream out1;
+	out1.open("CCL3.txt");
+	for(int i = 0 ; i < CL.size() ; i++ )
+	{
+		 out1<<"Cluster No. "<<i<<" "<<" No of elements in Cluster "<<CL[i].count<<endl;
+		 for(int j=0 ; j<nA ; j++ )
+		 {
+			  out1<<CL[i].centroid[j]<<" ";
+		 }
+		 out1<<endl;
+		 for(int j =0 ; j < CL[i].count ; j++ )
+		 {
+			  out1<<CL[i].n[j]<<" ";
+		 }
+		 out1<<endl<<endl;
+	}
+	cout<<"epoch:"<<counter<<endl;
+}
+int main(int argc, char** argv)
+{
+	clock_t start, end;
+	double runTime;
+	start = clock();
+	img = new double *[nI];
+	for(int i=0 ; i<nI ; i++ )
+         img[i] = new double [1];
+    ifstream in1("dist.txt");
+    for(int i=0 ;  i<nI ; i++ )
+         for(int j=0 ; j<1	 ; j++ )
+        	 in1>>img[i][j];
+    in1.close();
+    kMeans();
+    cout<<CL.size()<<endl;
+    HAC(&CL);
+    find_cluster(); // This function is used for Testing
+    end = clock();
+	runTime = (end - start) / (double) CLOCKS_PER_SEC ;
+	printf ("Run time is %g seconds\n", runTime);
+    system("pause");
+
+    return 0;
+}
+
+ofstream out("fd.txt");
+
+int find_cluster()
+{
+     for(int i=3 ; i<nI ; i=i+4 )
+     {
+
+            double dist[ CL.size() ] , *test_img;
+            test_img = img[i];
+            /*
+            cout<<"\nImage no: "<<i<<"    ";
+            for( j=0 ; j<nA ; j++ )
+            {
+                 cout<<test_img[j]<<" ";
+            }
+            cout<<endl;
+            */
+            int pos;
+            for(int j=0 ; j < CL.size() ; j++ )
+                 dist[j] = 0;
+
+             for(int j =0 ; j < CL.size() ; j++ )
+             {
+                  dist[j] = man_dist( CL[j].centroid , test_img );
+                  //dist[j] = man_dist( CL[j].centroid , test_img );
+             }
+             out<<"Image No. "<<i<<"\t";
+             /*
+             for( j =0 ; j < CL.size() ; j++ )
+                  out<<dist[j]<<" ";
+             out<<endl;
+             */
+
+             int maxi = 1000;
+             for(int j = 0 ; j < 100 ; j++ ) // 5 best Ranks
+             {
+                  pos = min_element( dist , dist + CL.size() ) - dist;
+                  dist[ pos ] = maxi;
+                  //cout<<pos<<" ";
+                  for(int g=0; g<CL[pos].count; g++)
+                	  if(CL[pos].n[g]<=(i-1) && CL[pos].n[g]>=(i-3))
+                		  out<<j<<"\t";
+             }
+             out<<endl;
+
+     }
+     return 0;
+}

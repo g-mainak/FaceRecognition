@@ -1,0 +1,27 @@
+
+**** Build of configuration Debug for project splitter ****
+
+**** Internal Builder is used for build               ****
+gcc -O0 -g3 -Wall -c -fmessage-length=0 -osplit.o ..\split.c
+..\split.c:3:1: warning: return type defaults to 'int'
+..\split.c:13:1: warning: return type defaults to 'int'
+..\split.c:54:1: warning: return type defaults to 'int'
+..\split.c: In function 'main':
+..\split.c:69:3: warning: implicit declaration of function 'exit'
+..\split.c:69:3: warning: incompatible implicit declaration of built-in function 'exit'
+..\split.c:76:3: warning: incompatible implicit declaration of built-in function 'exit'
+..\split.c:114:9: warning: incompatible implicit declaration of built-in function 'exit'
+..\split.c:131:9: warning: incompatible implicit declaration of built-in function 'exit'
+..\split.c:148:9: warning: incompatible implicit declaration of built-in function 'exit'
+..\split.c:59:10: warning: unused variable 'iname'
+..\split.c: At top level:
+..\split.c:24:12: warning: 'putlong' defined but not used
+..\split.c: In function 'main':
+..\split.c:160:1: warning: control reaches end of non-void function
+..\split.c: In function 'putshort':
+..\split.c:22:1: warning: control reaches end of non-void function
+..\split.c: In function 'putbyte':
+..\split.c:11:1: warning: control reaches end of non-void function
+gcc -osplitter.exe split.o
+Build complete for project splitter
+Time consumed: 569  ms.  

@@ -1,0 +1,159 @@
+#include "cv.h"
+#include "highgui.h"
+#include <iostream>
+
+using namespace cv;
+using namespace std;
+
+String cascadeName1 =
+"C:/OpenCV2.0/data/haarcascades/haarcascade_mcs_nose.xml";
+String cascadeName2 =
+"C:/OpenCV2.0/data/haarcascades/haarcascade_mcs_mouth.xml";
+String nestedCascadeName =
+"C:/OpenCV2.0/data/haarcascades/haarcascade_eye_tree_eyeglasses.xml";
+
+void detectAndDraw( Mat& img,
+                   CascadeClassifier& cascade1, CascadeClassifier& cascade2, CascadeClassifier& nestedCascade,
+                   double scale)
+{
+	int i = 0, k=1;
+    double t = 0;
+    vector<Rect> righteyes;
+    vector<Rect> lefteyes;
+    Mat gray, smallImg( cvRound (img.rows/scale), cvRound(img.cols/scale), CV_8UC1 );
+
+    cvtColor( img, gray, CV_BGR2GRAY );
+    resize( gray, smallImg, smallImg.size(), 0, 0, INTER_LINEAR );
+    equalizeHist( smallImg, smallImg );
+
+    t = (double)cvGetTickCount();
+    cascade1.detectMultiScale( smallImg, righteyes,
+        1.1, 3, 0,
+        Size(10, 10) );
+    cascade2.detectMultiScale( smallImg, lefteyes,
+            1.1, 3, 0,
+            Size(10, 10) );
+    t = (double)cvGetTickCount() - t;
+    printf( "detection time = %g ms\n", t/((double)cvGetTickFrequency()*1000.) );
+    vector<Rect>::const_iterator r = righteyes.begin();
+    vector<Rect>::const_iterator l = lefteyes.begin();
+    for( ; r != righteyes.end(); r++, i++, l++ )
+    {
+    	Mat smallImgROI;
+        smallImgROI = smallImg(*r);
+        stringstream imageName;
+        imageName <<(k) << "r.jpg";
+        //resize( smallImg(*r), smallImgROI, Size(100,100), 0, 0, INTER_CUBIC );
+        imwrite(imageName.str(), smallImgROI);
+        {
+        	Mat smallImgROI;
+            smallImgROI = smallImg(*l);
+            stringstream imageName;
+            imageName <<(k++) << "l.jpg";
+            //resize( smallImg(*r), smallImgROI, Size(100,100), 0, 0, INTER_CUBIC );
+            imwrite(imageName.str(), smallImgROI);
+            cout<<"Distance: "<<(righteyes.at(i+1).x - (righteyes.at(i).x + righteyes.at(i).width));
+    }}
+    imshow( "result", img );
+}
+
+
+int main( int argc, char** argv )
+{
+    CvCapture* capture = 0;
+    Mat frame, frameCopy, image;
+    const String scaleOpt = "--scale=";
+    size_t scaleOptLen = scaleOpt.length();
+    const String cascadeOpt = "--cascade=";
+    size_t cascadeOptLen = cascadeOpt.length();
+    const String nestedCascadeOpt = "--nested-cascade";
+    size_t nestedCascadeOptLen = nestedCascadeOpt.length();
+    String inputName;
+
+    CascadeClassifier cascade1, cascade2, nestedCascade;
+    double scale = 1;
+
+               inputName.assign( argv[1] );
+
+
+    if( !cascade1.load( cascadeName1 ) || !cascade2.load( cascadeName2 ) )
+    {
+        cerr << "ERROR: Could not load classifier cascade" << endl;
+        cerr << "Usage: facedetect [--cascade=\"<cascade_path>\"]\n"
+            "   [--nested-cascade[=\"nested_cascade_path\"]]\n"
+            "   [--scale[=<image scale>\n"
+            "   [filename|camera_index]\n" ;
+        return -1;
+    }
+
+    if( inputName.empty() || (isdigit(inputName.c_str()[0]) && inputName.c_str()[1] == '\0') )
+        capture = cvCaptureFromCAM( inputName.empty() ? 0 : inputName.c_str()[0] - '0' );
+    else if( inputName.size() )
+    {
+        image = imread( inputName, 1 );
+        if( image.empty() )
+            capture = cvCaptureFromAVI( inputName.c_str() );
+    }
+    else
+        image = imread( "lena.jpg", 1 );
+
+    if( capture )
+    {
+        for(;;)
+        {
+            IplImage* iplImg = cvQueryFrame( capture );
+            frame = iplImg;
+            if( frame.empty() )
+                break;
+            if( iplImg->origin == IPL_ORIGIN_TL )
+                frame.copyTo( frameCopy );
+            else
+                flip( frame, frameCopy, 0 );
+
+            detectAndDraw( frameCopy, cascade1, cascade2, nestedCascade, scale );
+
+            if( waitKey( 10 ) >= 0 )
+                goto _cleanup_;
+        }
+
+        waitKey(0);
+        _cleanup_:
+        cvReleaseCapture( &capture );
+    }
+    else
+    {
+        if( !image.empty() )
+        {
+            detectAndDraw( image, cascade1, cascade2, nestedCascade, scale );
+            waitKey(0);
+        }
+        else if( !inputName.empty() )
+        {
+            /* assume it is a text file containing the
+            list of the image filenames to be processed - one per line */
+            FILE* f = fopen( inputName.c_str(), "rt" );
+            if( f )
+            {
+                char buf[1000+1];
+                while( fgets( buf, 1000, f ) )
+                {
+                    int len = (int)strlen(buf), c;
+                    while( len > 0 && isspace(buf[len-1]) )
+                        len--;
+                    buf[len] = '\0';
+                    cout << "file " << buf << endl;
+                    image = imread( buf, 1 );
+                    if( !image.empty() )
+                    {
+                        detectAndDraw( image, cascade1, cascade2, nestedCascade, scale );
+                        c = waitKey(0);
+                        if( c == 27 || c == 'q' || c == 'Q' )
+                            break;
+                    }
+                }
+                fclose(f);
+            }
+        }
+    }
+    return 0;
+}

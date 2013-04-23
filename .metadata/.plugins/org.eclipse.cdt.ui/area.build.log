@@ -1,0 +1,17 @@
+
+**** Build of configuration Debug for project area ****
+
+**** Internal Builder is used for build               ****
+g++ -O0 -g3 -Wall -c -fmessage-length=0 -ogaborarea.o ..\gaborarea.cpp
+In file included from ..\gaborarea.cpp:7:0:
+..\/gaborarea.h:36:1: warning: 'typedef' was ignored in this declaration
+..\/gaborarea.h:52:1: warning: 'typedef' was ignored in this declaration
+..\/gaborarea.h:59:1: warning: 'typedef' was ignored in this declaration
+..\/gaborarea.h:65:1: warning: 'typedef' was ignored in this declaration
+..\/gaborarea.h:71:1: warning: 'typedef' was ignored in this declaration
+..\gaborarea.cpp: In function 'int main(int, char**)':
+..\gaborarea.cpp:560:37: warning: deprecated conversion from string constant to 'char*'
+..\gaborarea.cpp:561:49: warning: deprecated conversion from string constant to 'char*'
+g++ -oArealDetection.exe gaborarea.o
+Build complete for project area
+Time consumed: 660  ms.  

@@ -1,0 +1,10 @@
+C:/mainakws/facerec/debug/orl_faces/s40/1.pgm
+C:/mainakws/facerec/debug/orl_faces/s40/2.pgm
+C:/mainakws/facerec/debug/orl_faces/s40/3.pgm
+C:/mainakws/facerec/debug/orl_faces/s40/4.pgm
+C:/mainakws/facerec/debug/orl_faces/s40/5.pgm
+C:/mainakws/facerec/debug/orl_faces/s40/6.pgm
+C:/mainakws/facerec/debug/orl_faces/s40/7.pgm
+C:/mainakws/facerec/debug/orl_faces/s40/8.pgm
+C:/mainakws/facerec/debug/orl_faces/s40/9.pgm
+C:/mainakws/facerec/debug/orl_faces/s40/10.pgm

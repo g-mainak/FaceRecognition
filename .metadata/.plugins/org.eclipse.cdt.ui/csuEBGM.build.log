@@ -1,0 +1,14 @@
+
+**** Build of configuration Debug for project csuEBGM ****
+
+**** Internal Builder is used for build               ****
+gcc -O0 -g3 -Wall -c -fmessage-length=0 -ocsuCommonUtil.o ..\csuCommonUtil.c
+..\csuCommonUtil.c: In function 'shuffledNumbers':
+..\csuCommonUtil.c:540:7: warning: implicit declaration of function 'random'
+gcc -O0 -g3 -Wall -c -fmessage-length=0 -ocsuCommonFile.o ..\csuCommonFile.c
+..\csuCommonFile.c: In function 'sortSubjectsBySimilarityToProbe':
+..\csuCommonFile.c:485:23: error: 'HUGE' undeclared (first use in this function)
+..\csuCommonFile.c:485:23: note: each undeclared identifier is reported only once for each function it appears in
+..\csuCommonFile.c:503:2: warning: implicit declaration of function 'random'
+Build error occurred, build is stopped
+Time consumed: 467  ms.  

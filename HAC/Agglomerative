@@ -1,0 +1,89 @@
+/*
+ * Agglomerative.cpp
+ *
+ *  Created on: Jun 30, 2010
+ *      Author: Mainak
+ */
+#include <vector>
+#include <iostream>
+using namespace std;
+
+struct clusters
+{
+	double centroid[4];
+	int count;
+	vector<int> images;
+};
+
+struct Image
+{
+	double area[4];
+	int personNum;
+};
+
+double distance(double d1[4], double d2[4])
+{
+	double dist = 0.0;
+	for(int i=0; i<4; i++)
+	{
+		dist += (d1[i]-d2[i])*(d1[i]-d2[i]);
+	}
+	//cout<<"dist:"<<dist<<"\t";
+	return dist;
+}
+
+void combine( int first, int second, vector<vector<double> > *distMat, vector <clusters> *clusters)
+{
+	for(int i=0; i<4; i++)
+	{
+		clusters->at(first).centroid[i] = (clusters->at(first).centroid[i] + clusters->at(second).centroid[i])/2;
+	}
+	for(int i=0; i<clusters->at(second).count; i++)
+		clusters->at(first).n[i+ clusters->at(first).count] = clusters->at(second).n[i];
+    clusters->at(first).count += clusters->at(second).count;
+	vector<clusters>::iterator i = clusters->begin();
+	i += second;
+	clusters->erase(i);
+}
+
+void printCluster(vector<clusters> cluster)
+{
+	for(vector<clusters>::iterator i = cluster.begin(); i != cluster.end(); i++)
+		cout<< i->centroid[0]<<"\t"<<i->centroid[1]<<"\t"<<i->centroid[2]<<"\t"<<i->centroid[3]<<endl;
+}
+
+void HAC( vector<clusters> cluster)
+{
+	int first, second, row, col;
+	for(int numClusters=100; numClusters>1; numClusters--)
+	{
+		double leastDist=1e300;
+		vector<vector<double> > distMat (numClusters, vector<double> (numClusters));
+		for(vector<double>::iterator i = distMat[0].begin(); i!= distMat[0].end(); i++)
+		{
+			row = i - distMat[0].begin();
+			for(vector<double>::iterator j = distMat.at(row).begin(); row > (j - distMat.at(row).begin()) ; j++)
+			{
+				col = j - distMat.at(row).begin();
+				distMat.at(row).at(col) = distance( cluster.at(row).centroid , cluster.at(col).centroid);
+				if(leastDist>*j)
+				{
+					leastDist=*j;
+					first= row;
+					second= col;
+				}
+				cout<<row<<","<<col<<" "<<*j<<endl;
+			}
+		}
+		combine(second, first, &distMat, &cluster);
+	}
+	cout<<"done"<<endl<<endl<<endl;
+	printCluster(cluster);
+}
+
+int main()
+{
+	vector<clusters> C(3);
+	HAC(C);
+	return 0;
+}

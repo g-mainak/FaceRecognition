@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename resource &apos;CodeChef/life&apos; to &apos;life.cpp&apos;" description="Rename resource &apos;life&apos;" flags="7" id="org.eclipse.ltk.core.refactoring.rename.resource" input="life" name="life.cpp" stamp="1309780803736" updateReferences="true"/>
+</session>

@@ -1,0 +1,143 @@
+/*
+ * combine.cpp
+ *
+ *  Created on: Jul 3, 2010
+ *      Author: Mainak
+ */
+#include <algorithm>
+#include <vector>
+#include <cmath>
+#include <fstream>
+#include <iostream>
+using namespace std;
+int nA=4;
+double averageE, avM, avI;
+
+struct cluster
+{
+	double centroid[6], prevCentroid[6];
+    int n[832];
+    unsigned int count;
+};
+double **img;
+
+vector<cluster> read(char* file)
+{
+	ifstream in(file);
+	vector<cluster> CL;
+	cluster C;
+	for(int i=0; i<100; i++)
+	{
+		in>>C.count;
+		in>>C.count;
+		for(int j=0; j<4; ++j)
+			in>>C.centroid[j];
+		for(int j=0; j<C.count; ++j)
+			in>>C.n[j];
+		CL.push_back(C);
+	}
+	return CL;
+}
+
+double euclid_dist(double *d1, double *d2)
+{
+	double dist = 0.0;
+	for(unsigned int i=0; i<nA; i++)
+	{
+		dist += (d1[i]-d2[i])*(d1[i]-d2[i]);
+	}
+	return sqrt(dist);
+}
+
+double man_dist(double *d1, double *d2)
+{
+	double dist = 0.0;
+	for(unsigned int i=0; i<nA; i++)
+	{
+		dist += abs(d1[i]-d2[i]);
+	}
+	return (dist / nA);
+}
+
+vector<int> find_cluster_euclid(vector<cluster> CL, int i)
+{
+	vector<int> v ;
+	double dist[ CL.size() ] , *test_img;
+	test_img = img[i];
+	int pos;
+	for(int j =0 ; j < CL.size() ; j++ )
+		dist[j] = euclid_dist( CL[j].centroid , test_img );
+	int maxi = 1000;
+	for(int j = 0 ; j < 30 ; j++ ) // 10 best Ranks
+	{
+		pos = min_element( dist , dist + CL.size() ) - dist;
+		dist[ pos ] = maxi;
+		for(int k=0; k<CL[pos].count; k++)
+		{
+			v.push_back(CL[pos].n[k]);
+		}
+	}
+	averageE+=v.size();
+	sort(v.begin(), v.begin()+v.size());
+	return v;
+}
+
+vector<int> find_cluster_man(vector<cluster> CL, int i)
+{
+	vector<int> v;
+	double dist[ CL.size() ] , *test_img;
+	test_img = img[i];
+	int pos;
+	for(int j =0 ; j < CL.size() ; j++ )
+		dist[j] = man_dist( CL[j].centroid , test_img );
+	int maxi = 1000;
+	for(int j = 0 ; j < 30 ; j++ ) // 10 best Ranks
+	{
+		pos = min_element( dist , dist + CL.size() ) - dist;
+		dist[ pos ] = maxi;
+		for(int k=0; k<CL[pos].count; k++)
+		{
+			v.push_back(CL[pos].n[k]);
+		}
+	}
+	avM+=v.size();
+	sort(v.begin(), v.begin()+v.size());
+	return v;
+}
+
+int main()
+{
+	vector<cluster> CL1, CL2;
+	CL1 = read("euclid.txt");
+	CL2 = read("man.txt");
+	img = new double *[208*4];
+	for(int i=0 ; i<208*4 ; i++ )
+		 img[i] = new double [4];
+	ifstream in1("Areas.txt");
+	for(int i=0 ;  i<208*4 ; i++ )
+		 for(int j=0 ; j<4 ; j++ )
+			 in1>>img[i][j];
+	in1.close();
+	int found=0, notFound=0;
+	for(int i=3; i<832; i+=4)
+	{
+		vector<int> v1 = find_cluster_euclid(CL1, i);
+		vector<int> v2 = find_cluster_man(CL2, i);
+		vector<int> intersection(832);
+		vector<int>::iterator it;
+		it = set_intersection(v1.begin(), v1.begin() + v1.size(), v2.begin(), v2.begin()+v2.size(), intersection.begin());
+		avI+=it-intersection.begin();
+		int flag=0;
+		for(int j=0; j<it-intersection.begin(); ++j)
+			if(intersection[j]>=(i-3) && intersection[j]<=(i-1))
+			{
+				found++;
+				flag=1;
+				break;
+			}
+		if (flag==0) notFound++;
+	}
+	cout<<averageE/208<<"\t"<<avM/208<<"\t"<<avI/208<<"\t"<<endl;
+	cout<<found<<"\t"<<notFound;
+	return 0;
+}

@@ -1,0 +1,13 @@
+/*
+ * regression.c
+ *
+ *  Created on: 20-May-2011
+ *      Author: Mainak
+ */
+#include "regression.h"
+
+double regA(Node*, Node*, Node*)
+{};
+
+double regB(Node*, Node*, Node*)
+{};
